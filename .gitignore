@@ -1,0 +1,17 @@
+.env
+.venv/
+
+*.egg-info/
+*.egg
+
+#DS_Store
+**/*.DS_Store
+#byte-compiled .py files
+**/*.py[cod]
+**/*.so
+
+#__pycache__
+**/__pycache__
+**/*/__pycache__
+
+./invoices/
