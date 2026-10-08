@@ -15,3 +15,7 @@
 **/*/__pycache__
 
 ./invoices/
+.vscode/
+
+# sqllite_data
+sqllite_data/**/*.*

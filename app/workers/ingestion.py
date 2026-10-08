@@ -1,11 +1,14 @@
+from app.config import settings
 from typing import Any
 from app.config.log_config import logger
 from app.tools import fetch_email_invoices_tool
 import uuid
 from app.services.core_services import invoice_service
+from app.services.iam_services import UserService
 from app.constants import INVOICE_STATUS
 from app.agents.graph import invoice_graph
 from app.schemas.core_schemas import GraphState
+from app.utils.core_utils import sqlite_db
 import atexit
 
 class IngestionWorker:
@@ -22,8 +25,14 @@ class IngestionWorker:
         thread_id = f"inv-{uuid.uuid4()}"
         logger.debug("thread_id = %s", thread_id)
         config = {"configurable": {"thread_id": thread_id}}
+        db = sqlite_db.connect()
+        system_user = UserService(db).get_user_by_username(settings.SYSTEM_AI_USERNAME)
 
-        result = invoice_graph.invoke({"file_path": file_path, "filename": filename, "thread_id": thread_id}, config=config)
+        if not system_user:
+            raise ValueError("System user not found.")
+        
+        breakpoint()
+        result = invoice_graph.invoke({"file_path": file_path, "filename": filename, "thread_id": thread_id, "user_id": system_user.id}, config=config)
 
         return {
             "thread_id": thread_id,

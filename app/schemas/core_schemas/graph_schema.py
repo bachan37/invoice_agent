@@ -19,7 +19,7 @@ class GraphState(BaseModel):
     
     # Completed results accumulator
     processed_invoices: List[Dict[str, Any]] = Field(default_factory=list)
-
+    user_id: Optional[int] = Field(None, description="User ID of the user who created the invoice")
     # Error tracking
     error_message: Optional[str] = None
     retry_count: int = 0

@@ -21,7 +21,9 @@ dependencies = [
     "pypdf",
     "pymupdf",
     "langgraph-checkpoint-sqlite",
-    "grandalf"
+    "grandalf",
+    "libpass[argon2]",
+    "PyJWT>=2.15.1"
 ]
 
 [project.optional-dependencies]

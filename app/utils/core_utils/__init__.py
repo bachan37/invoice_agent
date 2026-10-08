@@ -7,6 +7,7 @@ from app.utils.core_utils.db_utils import (
     utc_now,
     checkpointer_conn,
 )
+from app.utils.iam_utils import auth_utils
 
 from app.utils.core_utils.email_utils import email_utility
 
@@ -19,4 +20,5 @@ __all__ = [
     "utc_now",
     "checkpointer_conn",
     "email_utility",
+    "auth_utils"
 ]

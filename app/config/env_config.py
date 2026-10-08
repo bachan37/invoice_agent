@@ -42,14 +42,14 @@ class Settings:
         # sender email configuration
         self.SENDER_EMAIL: str= os.getenv("SENDER_EMAIL", "")
         
-        # 4. Admin configuration
-        # self.ADMIN_USERNAME: str | None = (
-        #     os.getenv("ADMIN_USERNAME", "").strip() or None
-        # )
-        # self.ADMIN_EMAIL: str | None = os.getenv("ADMIN_EMAIL", "").strip() or None
-        # self.ADMIN_PASSWORD: str | None = (
-        #     os.getenv("ADMIN_PASSWORD", "").strip() or None
-        # )
+        # System AI user configuration
+        self.SYSTEM_AI_USERNAME: str | None = (
+            os.getenv("SYSTEM_AI_USERNAME", "").strip() or None
+        )
+        self.SYSTEM_AI_EMAIL: str | None = os.getenv("SYSTEM_AI_EMAIL", "").strip() or None
+        self.SYSTEM_AI_PASSWORD: str | None = (
+            os.getenv("SYSTEM_AI_PASSWORD", "").strip() or None
+        )
 
         # 5. Working directory
         working_dir = os.path.abspath(os.getenv("WORKING_DIR", ".").strip() or ".")

@@ -18,13 +18,14 @@ class InvoiceService:
         self.db = db
         self.invoice_repository = InvoiceRepository(db)
 
-    def create_record(self, thread_id: str, file_path: str, filename: str, status: str, **kwargs) -> Optional[Invoice]:
+    def create_record(self, thread_id: str, file_path: str, filename: str, status: str, created_by: Optional[int], **kwargs) -> Optional[Invoice]:
         """ uses repository to create records """
         invoice = self.invoice_repository.create_invoice(
             file_path=file_path,
             filename=filename,
             status=status,
-            thread_id=thread_id
+            thread_id=thread_id,
+            created_by=created_by,
         )
         if invoice:
             logger.info(f"Created invoice record: {invoice.id}")

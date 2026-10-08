@@ -38,7 +38,8 @@ class InvoiceRepository(BaseRepository[Invoice]):
             thread_id=thread_id,
             filename=filename,
             file_path=file_path,
-            status=status
+            status=status,
+            created_by=created_by
         )
 
     def get_invoice_by_id(self, invoice_id: int) -> Optional[Invoice]:
