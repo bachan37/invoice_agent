@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "invoice_agent"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "gunicorn",
+    "langchain",
+    "langchain-community",
+    "langchain-openai",
+    "langgraph",
+    "sqlalchemy",
+    "pydantic-settings",
+    "python-dotenv",
+    "python-multipart",
+    "pypdf",
+    "pymupdf",
+    "langgraph-checkpoint-sqlite",
+    "grandalf"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "ruff",
+    "mypy",
+    "pre-commit",
+    "pytest",
+    "httpx"
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
