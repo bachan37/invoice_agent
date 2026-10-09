@@ -1,16 +1,13 @@
 from app.constants.app_constants import INVOICE_STATUS
 from datetime import datetime
 from typing import Optional, Dict, Any
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import Field, field_validator
 from app.utils.core_utils import utc_now
 import json
+from app.models.base_model import Base
 
 
-class Invoice(BaseModel):
-    """Invoice domain model."""
-    model_config = ConfigDict(frozen=True)
-
-    id: int
+class Invoice(Base):
     thread_id: str
     filename: str
     file_path: Optional[str]
@@ -19,9 +16,7 @@ class Invoice(BaseModel):
     extracted_data: Optional[Dict[str, Any]]
     reviewer_notes: Optional[str]
     reviewer_id: Optional[int]
-    created_at: datetime = Field(default_factory=utc_now)
     created_by: Optional[int]
-    updated_at: datetime = Field(default_factory=utc_now)
     updated_by: Optional[int]
 
     @field_validator("extracted_data", mode="before")
