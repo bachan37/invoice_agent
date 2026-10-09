@@ -1,9 +1,11 @@
+from app.utils.core_utils import log_node
 from langgraph.types import interrupt
 from app.schemas.core_schemas import GraphState
 from app.constants import INVOICE_STATUS
 from app.services.core_services import InvoiceService
 from app.config import logger
 
+@log_node
 def review_invoice_node(state: GraphState) -> dict:
     """Node: Validates invoice arithmetic. Pauses graph via interrupt()"""
 
@@ -22,7 +24,8 @@ def review_invoice_node(state: GraphState) -> dict:
 
     # Resumes here after FastAPI receives resume POST request with Command(resume=...)
     # Payload format expected from API: {"approved": True/False, "corrected_content": {...}, "reviewer_note": "..."}
-    breakpoint()
+
+    # Todo: pass corrected data to save payload.
     is_approved = human_response.get("approved", True)
     #corrected_data = human_response.get("corrected_content", state.parsed_content)
     note = human_response.get("reviewer_note", "")
@@ -34,15 +37,18 @@ def review_invoice_node(state: GraphState) -> dict:
     else:
         status = INVOICE_STATUS.REJECTED
 
+    logger.info("Update invoice data: %s", {
+        "invoice_id": state.invoice_id,
+        "status": status,
+        "reviewer_notes": note
+    })
     InvoiceService.object().update_invoice(
         invoice_id=state.invoice_id,
         status=status,
-        #extracted_data=corrected_data,  # Save human-corrected JSON
         reviewer_notes=note
     )
 
     return {
-        #"parsed_content": corrected_data,
         "status": status,
         "review_note": note,
         "review_approved": is_approved,

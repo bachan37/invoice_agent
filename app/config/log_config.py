@@ -48,17 +48,18 @@ class JsonFormatter(logging.Formatter):
 
 
 class DailyFileHandler(BaseRotatingHandler):
-    """Writes logs to YYYY-MM-DD.log, rotating into a new file each UTC day.
+    """Writes logs to YYYY-MM-DD_<service_name>.log, rotating into a new file each UTC day.
 
-    Files are named by date (e.g. 2026-04-15.log). Old files beyond
-    `backup_count` days are removed automatically on rollover.
+    Files are named by date and service (e.g. 2026-04-15_api.log or 2026-04-15_ingestion.log).
+    Old files beyond `backup_count` days for that service are removed automatically on rollover.
     """
 
-    def __init__(self, log_dir: str, backup_count: int = 30, encoding: str = "utf-8"):
+    def __init__(self, log_dir: str, service_name: str = "app", backup_count: int = 30, encoding: str = "utf-8"):
         self.log_dir = log_dir
         self.backup_count = backup_count
+        self.service_name = service_name
         self._current_date = self._today()
-        filename = os.path.join(log_dir, f"{self._current_date}.log")
+        filename = os.path.join(log_dir, f"{self._current_date}_{self.service_name}.log")
         super().__init__(filename, mode="a", encoding=encoding, delay=False)
 
     @staticmethod
@@ -90,32 +91,44 @@ class DailyFileHandler(BaseRotatingHandler):
         while len(logs) > self.backup_count:
             os.remove(logs.pop(0))
 
+def setup_logging(service_name: str = "api") -> logging.Logger:
+    """Configures handlers and returns a root or service-specific logger."""
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(JsonFormatter())
 
-# Console handler
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(JsonFormatter())
+    handlers: list[logging.Handler] = [console_handler]
 
-handlers: list[logging.Handler] = [console_handler]
+    # File handler — writes to LOG_DIR/YYYY-MM-DD_app.log, rotates at UTC midnight
+    if settings.LOG_DIR:
+        os.makedirs(settings.LOG_DIR, exist_ok=True)
+        file_handler = DailyFileHandler(
+            log_dir=settings.LOG_DIR,
+            service_name=service_name,
+            backup_count=30,
+        )
+        file_handler.setFormatter(JsonFormatter())
+        handlers.append(file_handler)
 
-# File handler — writes to LOG_DIR/YYYY-MM-DD.log, rotates at UTC midnight
-if settings.LOG_DIR:
-    os.makedirs(settings.LOG_DIR, exist_ok=True)
-    file_handler = DailyFileHandler(settings.LOG_DIR, backup_count=30)
-    file_handler.setFormatter(JsonFormatter())
-    handlers.append(file_handler)
+    # Configure root logger
+    logging.basicConfig(level=LOG_LEVEL, handlers=handlers, force=True)
 
-logging.basicConfig(level=LOG_LEVEL, handlers=handlers)
-logger = logging.getLogger("app")
+    # Suppress verbose third-party logs
+    suppress_loggers = [
+        "openai",
+        "openai._base_client",
+        "httpx",
+        "httpcore",
+        "langchain.agents.agent_iterator",
+        "urllib3.connectionpool",
+        "sentence_transformers",
+        "sentence_transformers.SentenceTransformer",
+        "transformers",
+        "tokenizers",
+        "filelock",
+    ]
+    for logger_name in suppress_loggers:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
 
-# Suppress verbose third-party logs
-logging.getLogger("openai").setLevel(logging.WARNING)
-logging.getLogger("openai._base_client").setLevel(logging.WARNING)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("httpcore").setLevel(logging.WARNING)
-logging.getLogger("langchain.agents.agent_iterator").setLevel(logging.WARNING)
-logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
-logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
-logging.getLogger("sentence_transformers.SentenceTransformer").setLevel(logging.WARNING)
-logging.getLogger("transformers").setLevel(logging.WARNING)
-logging.getLogger("tokenizers").setLevel(logging.WARNING)
-logging.getLogger("filelock").setLevel(logging.WARNING)
+    return logging.getLogger("app")
+
+logger = setup_logging(service_name="app")

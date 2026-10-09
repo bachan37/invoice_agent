@@ -5,6 +5,7 @@ import sqlite3
 from typing import List, Optional
 from app.constants import INVOICE_STATUS
 from app.exceptions import NotFoundError
+from app.config import logger
 
 from fastapi import APIRouter, Depends, status, Query
 

@@ -1,3 +1,4 @@
+from app.utils.core_utils import log_node
 from app.schemas.core_schemas import GraphState
 from typing import Any, Dict
 from app.constants import INVOICE_STATUS
@@ -5,19 +6,21 @@ from app.tools.extract_invoice_pdf_tool import extract_invoice_pdf_tool
 from app.services.core_services import InvoiceService
 from app.config import logger
 
+@log_node
 def extract_pdf_node(state: GraphState) -> Dict[str, Any]:
     """Node to extract raw text content using pypdf tool."""
     if not state.file_path:
+        logger.error("No file path provided for PDF extraction")
         return {"error_message": "No file path provided for PDF extraction."}
 
     
     raw_text = extract_invoice_pdf_tool.invoke({"file_path": state.file_path})
 
     if(raw_text is None):
-        logger.error(f"Node2: Failed to extract the raw content for file_name:{state.filename}")
+        logger.error(f"Failed to extract the raw content for file_name:{state.filename}")
         return {"status": INVOICE_STATUS.FAILED, "error_message": "Extraction failed: No raw text extracted"}
         
-    logger.info(f"Node2: Extract the raw content: {raw_text}")
+    logger.info(f"Extract the raw content: {raw_text}")
 
     # update extracted content in database
     InvoiceService.object().update_invoice(

@@ -18,6 +18,8 @@ class Settings:
             "PROJECT_DESCRIPTION",
             "An agentic invoice processing application.",
         )
+        self.HOST_IP: str = os.getenv("HOST_IP", "[IP_ADDRESS]")
+        self.HOST_PORT: int = int(os.getenv("PORT", "8000"))
 
         # 2. API configuration
         self.ALLOWED_ORIGINS: list[str] = os.getenv("ALLOWED_ORIGINS", "").split(",")

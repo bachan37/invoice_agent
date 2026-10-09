@@ -1,3 +1,4 @@
+from app.utils.core_utils import log_node
 from app.services.core_services import InvoiceService
 from app.constants import INVOICE_STATUS
 from app.schemas.core_schemas import GraphState, InvoiceDataSchema
@@ -7,10 +8,12 @@ from app.config import logger
 import json
 from datetime import date, datetime
 
+@log_node
 def parse_invoice_node(state: GraphState) -> Dict[str, Any]:
     """Node: Converts raw PDF text into structured JSON via LLM and updates SQLite."""
 
     if state.actual_content is None:
+        logger.error("No actual content available for PDF parsing.")
         return {"status": INVOICE_STATUS.FAILED, "error_message": "No actual content available."}
         
     logger.info(f"Parsing invoice content: {state.actual_content}")

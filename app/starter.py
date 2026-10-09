@@ -10,7 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions import AppError
 from fastapi import APIRouter, FastAPI
 from app.config.env_config import settings
-from app.config.log_config import logger
+from app.config.log_config import logging
+logger = logging.getLogger("app")
+
 from app.utils.core_utils import init_db, sqlite_db
 from app.models import Role
 from app.services.iam_services import RoleService

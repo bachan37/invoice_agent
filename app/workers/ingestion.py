@@ -1,6 +1,8 @@
 from app.config import settings
 from typing import Any
-from app.config.log_config import logger
+from app.config.log_config import setup_logging
+logger = setup_logging(service_name="ingestion")
+
 from app.tools import fetch_email_invoices_tool
 import uuid
 from app.services.core_services import invoice_service
@@ -29,9 +31,9 @@ class IngestionWorker:
         system_user = UserService(db).get_user_by_username(settings.SYSTEM_AI_USERNAME)
 
         if not system_user:
+            logger.error("System user not found. Please create system user.")
             raise ValueError("System user not found.")
         
-        breakpoint()
         result = invoice_graph.invoke({"file_path": file_path, "filename": filename, "thread_id": thread_id, "user_id": system_user.id}, config=config)
 
         return {
@@ -43,6 +45,9 @@ class IngestionWorker:
     def _run_ingestion_job(self):
         """Fetches all new email attachments and processes each file into its own graph thread."""
         logger.info("Starting email ingestion worker...")
+
+        # draw the graph
+        print(invoice_graph.get_graph().draw_ascii())
 
         fetched_files = fetch_email_invoices_tool.invoke({})
 
@@ -63,7 +68,4 @@ class IngestionWorker:
 
     def run(self):
         self._run_ingestion_job()
-
-ingestion_worker = IngestionWorker()
-ingestion_worker.run()
         
