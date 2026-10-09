@@ -30,13 +30,13 @@ class JWTUtils:
         self.jwt_access_token_expire_minutes = settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 
     def create_access_token(
-        self, user_id: str, role_ids: List[str], expires_minutes: int | None = None
+        self, user_id: int, roles: List[str], expires_minutes: int | None = None
     ) -> str:
         """Create a signed JWT access token.
 
         Args:
             user_id: Subject (user) identifier.
-            role_ids: List of role IDs to embed in token.
+            roles: List of role names to embed in token.
             expires_minutes: Token expiry in minutes. Defaults to settings value.
 
         Returns:
@@ -48,8 +48,8 @@ class JWTUtils:
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
 
         payload = {
-            "sub": str(user_id),
-            "role_ids": role_ids,
+            "user_id": user_id,
+            "roles": roles,
             "exp": expires_at,
         }
 
@@ -64,7 +64,7 @@ class JWTUtils:
             token: Encoded JWT string.
 
         Returns:
-            Decoded payload dict (sub, role_ids, exp, etc.).
+            Decoded payload dict (user_id, roles, exp, etc.).
 
         Raises:
             JWTError: If token is expired or invalid.

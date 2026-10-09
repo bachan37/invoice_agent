@@ -48,8 +48,11 @@ class AuthService:
 
         try:
             roles = self.user_repo.get_roles_for_user(user.id)
-            role_ids = [role.id for role in roles]
-            return JWT_utils.create_access_token(user_id=user.id, role_ids=role_ids)
+            role_names = []
+            for role in roles:
+                role_names.append(role.name)
+
+            return JWT_utils.create_access_token(user_id=user.id, roles=role_names)
         except sqlite3.Error as e:
             logger.exception("Database error during login: %s", e)
             raise InternalError("Authentication failed") from e
